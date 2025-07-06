@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beauty Pageant Voting</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for Inter font and general aesthetics */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5; /* Light gray background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            background-color: #ffffff; /* White container background */
+            border-radius: 1rem; /* Rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            padding: 2.5rem;
+            box-sizing: border-box;
+        }
+        .contestant-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1.5rem;
+            background-color: #f9fafb; /* Lighter background for cards */
+            border-radius: 0.75rem; /* Rounded corners for cards */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Subtle card shadow */
+            transition: transform 0.2s ease-in-out;
+        }
+        .contestant-card:hover {
+            transform: translateY(-5px); /* Slight lift on hover */
+        }
+        .vote-button {
+            background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%); /* Gradient button */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+        .vote-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        .vote-button:disabled {
+            background-image: none;
+            background-color: #cccccc;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        .contestant-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%; /* Circular images */
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid #6a11cb; /* Border color */
+        }
+        .vote-count {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #4a5568; /* Darker text for count */
+            margin-top: 0.5rem;
+        }
+        .results-section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        .result-votes {
+            font-weight: 700;
+            color: #6a11cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-extrabold text-center text-gray-800 mb-8">
+            👑 Beauty Pageant Voting 👑
+        </h1>
+        <p class="text-center text-gray-600 mb-10">
+            Cast your vote for your favorite contestant!
+        </p>
+
+        <div id="contestants-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <!-- Contestant cards will be dynamically inserted here by JavaScript -->
+        </div>
+
+        <div class="results-section hidden" id="results-display">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">
+                Current Standings
+            </h2>
+            <div id="results-list" class="space-y-2">
+                <!-- Results will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Array to store contestant data
+        // You can customize contestant names and add more properties if needed
+        const contestants = [
+            { id: 1, name: 'Contestant 1', votes: 0, imageUrl: 'https://placehold.co/100x100/A78BFA/ffffff?text=C1' },
+            { id: 2, name: 'Contestant 2', votes: 0, imageUrl: 'https://placehold.co/100x100/818CF8/ffffff?text=C2' },
+            { id: 3, name: 'Contestant 3', votes: 0, imageUrl: 'https://placehold.co/100x100/6366F1/ffffff?text=C3' },
+            { id: 4, name: 'Contestant 4', votes: 0, imageUrl: 'https://placehold.co/100x100/4F46E5/ffffff?text=C4' },
+            { id: 5, name: 'Contestant 5', votes: 0, imageUrl: 'https://placehold.co/100x100/4338CA/ffffff?text=C5' },
+            { id: 6, name: 'Contestant 6', votes: 0, imageUrl: 'https://placehold.co/100x100/3730A3/ffffff?text=C6' },
+            { id: 7, name: 'Contestant 7', votes: 0, imageUrl: 'https://placehold.co/100x100/2E2C7B/ffffff?text=C7' },
+            { id: 8, name: 'Contestant 8', votes: 0, imageUrl: 'https://placehold.co/100x100/24225C/ffffff?text=C8' },
+            { id: 9, name: 'Contestant 9', votes: 0, imageUrl: 'https://placehold.co/100x100/1A183D/ffffff?text=C9' },
+            { id: 10, name: 'Contestant 10', votes: 0, imageUrl: 'https://placehold.co/100x100/100F2E/ffffff?text=C10' },
+            { id: 11, name: 'Contestant 11', votes: 0, imageUrl: 'https://placehold.co/100x100/0A091F/ffffff?text=C11' },
+            { id: 12, name: 'Contestant 12', votes: 0, imageUrl: 'https://placehold.co/100x100/050410/ffffff?text=C12' },
+            { id: 13, name: 'Contestant 13', votes: 0, imageUrl: 'https://placehold.co/100x100/000000/ffffff?text=C13' },
+            { id: 14, name: 'Contestant 14', votes: 0, imageUrl: 'https://placehold.co/100x100/333333/ffffff?text=C14' },
+            { id: 15, name: 'Contestant 15', votes: 0, imageUrl: 'https://placehold.co/100x100/666666/ffffff?text=C15' }
+        ];
+
+        const contestantsGrid = document.getElementById('contestants-grid');
+        const resultsDisplay = document.getElementById('results-display');
+        const resultsList = document.getElementById('results-list');
+
+        // Function to render contestant cards
+        function renderContestants() {
+            contestantsGrid.innerHTML = ''; // Clear existing cards
+            contestants.forEach(contestant => {
+                const card = document.createElement('div');
+                card.className = 'contestant-card';
+                card.innerHTML = `
+                    <img src="${contestant.imageUrl}" alt="${contestant.name}" class="contestant-image">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">${contestant.name}</h3>
+                    <p class="vote-count" id="votes-${contestant.id}">${contestant.votes} Votes</p>
+                    <button class="vote-button mt-4" data-id="${contestant.id}">Vote</button>
+                `;
+                contestantsGrid.appendChild(card);
+            });
+
+            // Add event listeners to vote buttons
+            document.querySelectorAll('.vote-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const contestantId = parseInt(event.target.dataset.id);
+                    voteForContestant(contestantId);
+                });
+            });
+        }
+
+        // Function to handle voting
+        function voteForContestant(id) {
+            const contestant = contestants.find(c => c.id === id);
+            if (contestant) {
+                contestant.votes++; // Increment vote count
+                updateVoteCountDisplay(id, contestant.votes); // Update display
+                renderResults(); // Re-render results to show updated standings
+            }
+        }
+
+        // Function to update the vote count on a specific card
+        function updateVoteCountDisplay(id, votes) {
+            const voteCountElement = document.getElementById(`votes-${id}`);
+            if (voteCountElement) {
+                voteCountElement.textContent = `${votes} Votes`;
+            }
+        }
+
+        // Function to render results
+        function renderResults() {
+            resultsList.innerHTML = ''; // Clear existing results
+            // Sort contestants by votes in descending order
+            const sortedContestants = [...contestants].sort((a, b) => b.votes - a.votes);
+
+            sortedContestants.forEach(contestant => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <span class="result-name">${contestant.name}</span>
+                    <span class="result-votes">${contestant.votes} Votes</span>
+                `;
+                resultsList.appendChild(resultItem);
+            });
+
+            // Show the results section if it's hidden
+            resultsDisplay.classList.remove('hidden');
+        }
+
+        // Initial rendering when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            renderContestants();
+            // Initially hide results until votes are cast
+            resultsDisplay.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
